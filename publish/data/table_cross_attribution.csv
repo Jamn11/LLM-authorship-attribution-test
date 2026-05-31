@@ -1,0 +1,7 @@
+author,role,topic,correct_pct,attributed_to_zvi_pct,top_wrong_guesses
+Zvi Mowshowitz,target,AI / Opus 4.8,59,59,Scott Alexander(33); Eliezer Yudkowsky(16); Andrej Karpathy(13)
+Simon Willison,same-topic,AI / Opus 4.8,53,21,Zvi Mowshowitz(8); Linus Torvalds(2); John Smith(1)
+Scott Alexander,same-tribe,book review,51,0,Curtis Yarvin(14); Slavoj Žižek(11); Eliezer Yudkowsky(10)
+Paul Krugman,control,economics,38,0,Noah Smith(14); Tyler Cowen(9); Scott Alexander(6)
+John Gruber,control,tech,22,0,Cory Doctorow(13); Scott Alexander(5); Maciej Cegłowski(4)
+Ross Douthat,control,politics,22,0,Matthew Yglesias(12); Paul Krugman(3); Jeff Asher(3)

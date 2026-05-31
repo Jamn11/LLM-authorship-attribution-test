@@ -1,0 +1,8 @@
+model,model_id,released,n_chunks,overall_acc,acc_ge21w,words_to_50,words_to_80,input_tokens,output_tokens,cost_usd,cost_per_correct_id
+Opus 4.8,claude-opus-4-8,2026-05-28,450,59,81,18,34,275348,52751,2.7,0.0102
+GPT-5.5,openai/gpt-5.5,2026-04-23,454,61,84,18,29,123728,378820,11.98,0.0431
+DeepSeek V4 Pro,deepseek/deepseek-v4-pro,2026-04-23,454,13,20,80,116,107110,504534,0.46,0.0077
+DeepSeek V4 Flash,deepseek/deepseek-v4-flash,2026-04-23,454,1,2,145,181,107110,193083,0.06,0.0102
+Sonnet 4.6,claude-sonnet-4-6,2026-02-17,451,40,62,31,49,211873,253907,4.44,0.0247
+Opus 4.5,claude-opus-4-5,2025-11-24,454,45,65,28,45,226520,271282,7.91,0.039
+Sonnet 4.0,claude-sonnet-4-0,2025-05-22,454,8,15,73,95,307332,63569,1.88,0.0494

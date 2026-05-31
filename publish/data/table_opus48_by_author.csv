@@ -1,0 +1,7 @@
+author,work,n_chunks,words_to_50,w50_ci_lo,w50_ci_hi,words_to_80,w80_ci_lo,w80_ci_hi
+Zvi Mowshowitz,Claude Opus 4.8: The System Card,450,18,17,20,34,30,37
+Simon Willison,Claude Opus 4.8,38,17,13,21,26,20,35
+Scott Alexander,Book Review: The Dialectical Imagination,373,25,22,28,44,39,52
+Paul Krugman,Europe Versus America: A Response to the Critics,109,52,38,75,102,69,161
+John Gruber,What Is a Dickover?,77,94,59,148,157,103,258
+Ross Douthat,The Best News in America,49,60,48,74,81,61,106

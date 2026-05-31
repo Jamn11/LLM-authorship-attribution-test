@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>zvi-sight — Authorship Attribution by Opus 4.8</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  :root{--ink:#1a1a1a;--mut:#6b6b6b;--line:#e4e0d8;--bg:#faf8f3;--card:#fff;--accent:#c2622d;--blue:#2d6ec2;--good:#3a8a55;--purp:#7a4fb5;}
+  *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;}
+  .wrap{max-width:980px;margin:0 auto;padding:48px 24px 80px;}
+  h1{font-size:34px;line-height:1.15;margin:0 0 6px;letter-spacing:-.02em;}
+  h2{font-size:22px;margin:48px 0 14px;letter-spacing:-.01em;border-bottom:2px solid var(--line);padding-bottom:8px;}
+  h3{font-size:15px;margin:4px 0 10px;}
+  .sub{color:var(--mut);font-size:15px;margin:0 0 28px;}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin:24px 0;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;}
+  .card .big{font-size:32px;font-weight:680;letter-spacing:-.02em;}
+  .card .lbl{color:var(--mut);font-size:13px;margin-top:4px;}
+  .card.accent .big{color:var(--accent)} .card.good .big{color:var(--good)} .card.blue .big{color:var(--blue)} .card.purp .big{color:var(--purp)}
+  .chartbox{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px;margin:18px 0;}
+  canvas{max-height:360px;}
+  p{margin:12px 0;} .note{background:#fff;border-left:3px solid var(--accent);padding:12px 16px;border-radius:0 8px 8px 0;color:#444;font-size:15px;margin:14px 0;}
+  .key{background:#fbf6ee;border:1px solid var(--line);border-left:3px solid var(--purp);padding:14px 18px;border-radius:0 10px 10px 0;margin:16px 0;}
+  table{width:100%;border-collapse:collapse;font-size:14px;margin:12px 0;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top;}
+  th{background:#f3efe7;font-weight:620;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#555;}
+  tr:last-child td{border-bottom:none;}
+  .q{color:#333;} .g{color:var(--good);font-weight:600;} .b{color:#b34;font-weight:600;}
+  .mono{font-variant-numeric:tabular-nums;} code{background:#efeae0;padding:1px 5px;border-radius:4px;font-size:13px;}
+  footer{margin-top:48px;color:var(--mut);font-size:13px;border-top:1px solid var(--line);padding-top:16px;}
+</style></head>
+<body><div class="wrap">
+<h1>How small a chunk can Opus 4.8 trace to its author?</h1>
+<p class="sub">Open-ended authorship attribution — no tools, no web search, thinking=high, structured JSON output. One independent API call per chunk. Four authors run through the identical pipeline.</p>
+
+<div class="cards" id="cards"></div>
+
+<h2>1. Accuracy vs. chunk length (word count)</h2>
+<p>The real independent variable is <b>word count</b> — paragraphs and sentences are pooled into a single curve per author. Below ~10 words there is too little signal to identify anyone; accuracy climbs steeply through 11–35 words and saturates near-ceiling on long passages. All four distinctive authors trace the same S-shape.</p>
+<div class="chartbox"><canvas id="lenChart"></canvas></div>
+
+<p>A single clean metric falls out of those curves: <b>how many words it takes to cross 50% and 80% accuracy</b>, estimated by a logistic fit of hit/miss on word count per author. The AI/rationalist-sphere writers are identified ~2–3× faster (per word) than the mainstream columnists.</p>
+<table id="thresh"><thead><tr><th>author</th><th>n</th><th>overall</th><th>→ 50% accuracy</th><th>→ 80% accuracy</th></tr></thead><tbody></tbody></table>
+<p style="font-size:13px;color:#6b6b6b;">Caveats: Willison's low figure is the noisiest (n=38, and topic-matched to Zvi) — Zvi's 19-word / 33-word figures (n=543) are the most robust. The 80% thresholds for the mainstream writers rest on relatively few long chunks, so carry wider uncertainty than the 50% ones.</p>
+
+<h2>2. The model knows when it knows (calibration)</h2>
+<p>Each bar is a confidence band; its height is the <i>actual</i> hit rate of Zvi-chunks the model assigned that confidence. A perfectly calibrated model sits on the dashed diagonal. Opus 4.8 is remarkably well-calibrated: ≥60 confidence is essentially always correct, and it correctly assigns low confidence to the short fragments it gets wrong — its "misses" are mostly it <i>knowing</i> a 4-word scrap is unidentifiable, not overconfident errors.</p>
+<div class="chartbox"><canvas id="calibChart"></canvas></div>
+
+<h2>3. Is it recognizing style, the tribe, or just the topic?</h2>
+<p>The headline number is only meaningful if the model isn't simply shouting "Zvi" at anything AI-adjacent. Three controls isolate what's really driving attribution. The orange bars are how often each author was correctly identified; the purple bars are how often they were <b>mis-attributed to Zvi</b>.</p>
+<div class="chartbox"><canvas id="crossChart"></canvas></div>
+<div class="key" id="keybox"></div>
+<table id="crosstab"><thead><tr><th>source</th><th>role</th><th>topic</th><th>n</th><th>→ correct</th><th>→ Zvi</th><th>top wrong guesses</th></tr></thead><tbody></tbody></table>
+
+<h2>4. Identifying the other authors</h2>
+<p id="douthatpara"></p>
+<p>Notably the capability is <b>not</b> Zvi-specific — every distinctive author here is identifiable from a few dozen words, each confused with their own neighbours (Scott Alexander → Yarvin / Žižek / Yudkowsky; Douthat → Yglesias / Krugman / other columnists; Willison → other developer-writers, plus Zvi on shared topic). The model isn't memorizing one author; it's doing genuine stylistic recognition across the board.</p>
+
+<h2>5. Example identifications (Zvi)</h2>
+<p>Confident, correct IDs on <b>short</b> chunks (≤15 words):</p>
+<table id="hits"><thead><tr><th>chunk</th><th>text</th><th>guess</th><th>conf</th></tr></thead><tbody></tbody></table>
+<p>Misses the model was most confident about (the interesting failures):</p>
+<table id="misses"><thead><tr><th>chunk</th><th>text</th><th>guess</th><th>conf</th></tr></thead><tbody></tbody></table>
+
+<h2>6. Method &amp; caveats</h2>
+<div class="note"><b>What this measures.</b> The target post is genuinely post-cutoff (the model never saw these exact words), but the authors' <i>styles</i> are represented in training. So this tests recognition of distinctive, well-represented authors from small novel samples — not blind stylometry on unknown writers. The same-topic control (Willison) shows topic contributes signal but style dominates; the same-tribe control (Scott) shows there is no lazy "LessWrong → Zvi" shortcut.</div>
+<p style="font-size:15px;color:#444;">
+• <b>Grading:</b> a hit requires naming the person (e.g. <code>zvi</code>/<code>mowshowitz</code>); blog names and vague categories do not count.<br>
+• <b>No tools:</b> zero tools passed — the model cannot search the web for the text. Structured JSON via <code>output_config.format</code>; thinking=high (a sweep showed effort level barely moves results — attribution is a fast judgment, not a reasoning task — so high was chosen purely to preempt any "you sandbagged" objection).<br>
+• <b>Independence:</b> every chunk is a separate API call with no shared context, so the model cannot learn to "always say Zvi" within a run.<br>
+• <b>Quotes excluded:</b> blockquoted material (tweets, verbatim Anthropic system-card text Zvi quotes, Anthropic's release notes Willison quotes) was stripped before chunking — only each author's own prose is graded.<br>
+• <b>Refusals:</b> a few Zvi chunks about biological/chemical threat models triggered content-safety refusals and are excluded.<br>
+• <b>Single pass:</b> one call per chunk, so the per-bucket curve carries sampling noise at small n (Willison n=38). Replicates would tighten it.</p>
+
+<footer>zvi-sight · model <code>claude-opus-4-8</code> · open-ended attribution · generated from results*.jsonl</footer>
+</div>
+
+<script>
+const D = {"buckets": ["1-3", "4-6", "7-10", "11-20", "21-35", "36-60", "61+"], "sources": [{"key": "zvi", "label": "Zvi Mowshowitz", "role": "TARGET", "topic": "AI \u00b7 Claude Opus 4.8", "n": 450, "refused": 4, "correct": 59, "to_zvi": 59, "curve": {"1-3": {"n": 7, "rate": 0}, "4-6": {"n": 20, "rate": 0}, "7-10": {"n": 55, "rate": 15}, "11-20": {"n": 137, "rate": 52}, "21-35": {"n": 120, "rate": 76}, "36-60": {"n": 87, "rate": 83}, "61+": {"n": 24, "rate": 96}}, "curve_long": 81, "to_zvi_long": 81, "calib": {"0": {"n": 154, "rate": 5}, "20": {"n": 130, "rate": 73}, "40": {"n": 56, "rate": 95}, "60": {"n": 85, "rate": 99}, "80": {"n": 25, "rate": 100}}, "confusions": [["Scott Alexander", 33], ["Eliezer Yudkowsky", 16], ["Andrej Karpathy", 13], ["Sam Altman", 13], ["Sam Bowman", 10], ["Simon Willison", 9]]}, {"key": "willison", "label": "Simon Willison", "role": "same-topic control", "topic": "AI \u00b7 Claude Opus 4.8", "n": 38, "refused": 0, "correct": 53, "to_zvi": 21, "curve": {"4-6": {"n": 2, "rate": 0}, "7-10": {"n": 9, "rate": 11}, "11-20": {"n": 12, "rate": 67}, "21-35": {"n": 9, "rate": 56}, "36-60": {"n": 5, "rate": 100}, "61+": {"n": 1, "rate": 100}}, "curve_long": 73, "to_zvi_long": 20, "calib": {"0": {"n": 10, "rate": 10}, "20": {"n": 13, "rate": 46}, "40": {"n": 4, "rate": 75}, "60": {"n": 8, "rate": 88}, "80": {"n": 3, "rate": 100}}, "confusions": [["Zvi Mowshowitz", 8], ["Linus Torvalds", 2], ["John Smith", 1], ["Ben Thompson", 1], ["Anonymous technical writer", 1], ["Matthew Yglesias", 1]]}, {"key": "scott", "label": "Scott Alexander", "role": "same-tribe control", "topic": "book review (LessWrong-adjacent)", "n": 373, "refused": 0, "correct": 51, "to_zvi": 0, "curve": {"1-3": {"n": 5, "rate": 20}, "4-6": {"n": 21, "rate": 10}, "7-10": {"n": 38, "rate": 24}, "11-20": {"n": 123, "rate": 32}, "21-35": {"n": 90, "rate": 58}, "36-60": {"n": 42, "rate": 86}, "61+": {"n": 54, "rate": 93}}, "curve_long": 74, "to_zvi_long": 0, "calib": {"0": {"n": 170, "rate": 17}, "20": {"n": 129, "rate": 70}, "40": {"n": 33, "rate": 91}, "60": {"n": 24, "rate": 96}, "80": {"n": 17, "rate": 100}}, "confusions": [["Curtis Yarvin", 14], ["Slavoj \u017di\u017eek", 11], ["Eliezer Yudkowsky", 10], ["Mark Fisher", 7], ["Paul Graham", 6], ["Tim Urban", 5]]}, {"key": "douthat", "label": "Ross Douthat", "role": "off-topic control", "topic": "crime \u00b7 politics", "n": 49, "refused": 0, "correct": 22, "to_zvi": 0, "curve": {"1-3": {"n": 1, "rate": 0}, "4-6": {"n": 2, "rate": 0}, "7-10": {"n": 4, "rate": 0}, "11-20": {"n": 11, "rate": 0}, "21-35": {"n": 13, "rate": 8}, "36-60": {"n": 10, "rate": 40}, "61+": {"n": 8, "rate": 75}}, "curve_long": 35, "to_zvi_long": 0, "calib": {"0": {"n": 17, "rate": 0}, "20": {"n": 24, "rate": 21}, "40": {"n": 6, "rate": 67}, "60": {"n": 2, "rate": 100}}, "confusions": [["Matthew Yglesias", 12], ["Paul Krugman", 3], ["Jeff Asher", 3], ["Megan Garber", 2], ["Kevin Drum", 2], ["Nate Silver", 2]]}, {"key": "krugman", "label": "Paul Krugman", "role": "non-LessWrong control", "topic": "economics", "n": 109, "refused": 0, "correct": 38, "to_zvi": 0, "curve": {"1-3": {"n": 5, "rate": 0}, "4-6": {"n": 2, "rate": 0}, "7-10": {"n": 10, "rate": 0}, "11-20": {"n": 32, "rate": 34}, "21-35": {"n": 31, "rate": 39}, "36-60": {"n": 8, "rate": 62}, "61+": {"n": 21, "rate": 62}}, "curve_long": 50, "to_zvi_long": 0, "calib": {"0": {"n": 48, "rate": 19}, "20": {"n": 47, "rate": 40}, "40": {"n": 11, "rate": 91}, "60": {"n": 3, "rate": 100}}, "confusions": [["Noah Smith", 14], ["Tyler Cowen", 9], ["Scott Alexander", 6], ["Scott Sumner", 5], ["Branko Milanovic", 4], ["Adam Tooze", 3]]}, {"key": "gruber", "label": "John Gruber", "role": "non-LessWrong control", "topic": "tech criticism", "n": 77, "refused": 0, "correct": 22, "to_zvi": 0, "curve": {"1-3": {"n": 3, "rate": 0}, "4-6": {"n": 6, "rate": 0}, "7-10": {"n": 14, "rate": 14}, "11-20": {"n": 25, "rate": 12}, "21-35": {"n": 11, "rate": 36}, "36-60": {"n": 8, "rate": 38}, "61+": {"n": 10, "rate": 50}}, "curve_long": 41, "to_zvi_long": 0, "calib": {"0": {"n": 49, "rate": 0}, "20": {"n": 17, "rate": 41}, "40": {"n": 5, "rate": 80}, "60": {"n": 2, "rate": 100}, "80": {"n": 4, "rate": 100}}, "confusions": [["Cory Doctorow", 13], ["Scott Alexander", 5], ["Maciej Ceg\u0142owski", 4], ["Unknown", 3], ["Jimmy Wales", 2], ["William Shakespeare", 2]]}], "thresholds": [{"label": "Simon Willison", "n": 38, "max_words": 70, "overall": 53, "w50": 17.041263836357636, "w80": 26.298383281477523, "w50_extrap": false, "w80_extrap": false}, {"label": "Zvi Mowshowitz", "n": 450, "max_words": 122, "overall": 59, "w50": 18.493418194188827, "w80": 33.82975026830383, "w50_extrap": false, "w80_extrap": false}, {"label": "Scott Alexander", "n": 373, "max_words": 239, "overall": 51, "w50": 25.213763634295315, "w80": 44.280951007344456, "w50_extrap": false, "w80_extrap": false}, {"label": "Paul Krugman", "n": 109, "max_words": 118, "overall": 38, "w50": 51.531440772446985, "w80": 101.7208143770514, "w50_extrap": false, "w80_extrap": false}, {"label": "Ross Douthat", "n": 49, "max_words": 96, "overall": 22, "w50": 60.00373908254342, "w80": 80.83254274174104, "w50_extrap": false, "w80_extrap": false}, {"label": "John Gruber", "n": 77, "max_words": 203, "overall": 22, "w50": 93.63320578940463, "w80": 156.94545304668785, "w50_extrap": false, "w80_extrap": false}], "zvi_para": 74, "zvi_sent": 51, "zvi_hits": [{"text": "I would interpret this as Opus 4.8 lying, or in Anthropic\u2019s parlance \u2018refusing.\u2019", "guess": "Zvi Mowshowitz", "conf": 72, "words": 15, "kind": "paragraph"}, {"text": "I would interpret this as Opus 4.8 lying, or in Anthropic\u2019s parlance \u2018refusing.\u2019", "guess": "Zvi Mowshowitz", "conf": 72, "words": 15, "kind": "sentence"}, {"text": "For me, that also means reading another 244 page system card.", "guess": "Zvi Mowshowitz", "conf": 62, "words": 11, "kind": "paragraph"}, {"text": "For me, that also means reading another 244 page system card.", "guess": "Zvi Mowshowitz", "conf": 55, "words": 11, "kind": "sentence"}, {"text": "I do think Anthropic \u2018knows what it is doing\u2019 here.", "guess": "Zvi Mowshowitz", "conf": 55, "words": 10, "kind": "sentence"}, {"text": "There are \u2018election integrity\u2019 tests, which Claude continues to pass.", "guess": "Zvi Mowshowitz", "conf": 55, "words": 10, "kind": "paragraph"}], "zvi_misses": [{"text": "We need to be virtuous enough to know that the world contains these things without doing them ourselves, and still study hard in Defense Against The Dark Arts.", "guess": "Eliezer Yudkowsky", "conf": 72, "words": 28, "kind": "sentence"}, {"text": "That is true, said Toad.", "guess": "Arnold Lobel", "conf": 55, "words": 5, "kind": "paragraph"}, {"text": "And if you see me not maximizing profits, know that either I do not care about your game, or else I am up to something, and you should watch your back.", "guess": "Eliezer Yudkowsky", "conf": 45, "words": 31, "kind": "sentence"}, {"text": "We have this pathology that only a Proper Human Professional can help you once your situation gets sufficiently bad, and I think this is basically some stupid cover-your-collective-and-individual asses bullshit blame avoidance.", "guess": "Eliezer Yudkowsky", "conf": 42, "words": 32, "kind": "sentence"}, {"text": "Neither Claude nor a friend should always be strategizing how to quickly hand you off to the system.", "guess": "Amanda Askell", "conf": 35, "words": 18, "kind": "sentence"}, {"text": "I agree with Anthropic that prompt injections are high priority. Agents are getting more useful, and scaling up rapidly, and earning more trust from users including access to data and ability to act on their behalf, which makes them juicier targets.", "guess": "Andrej Karpathy", "conf": 35, "words": 41, "kind": "paragraph"}]};
+Chart.defaults.font.family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif"; Chart.defaults.color="#444";
+const COL={zvi:"#c2622d",willison:"#2d6ec2",scott:"#7a4fb5",douthat:"#9a948a",krugman:"#3a8a55",gruber:"#d4a017",levine:"#b5407a",saunders:"#5b8aa0"};
+const S=Object.fromEntries(D.sources.map(s=>[s.key,s]));
+
+// cards
+document.getElementById("cards").innerHTML = `
+  <div class="card accent"><div class="big">${S.zvi.correct}%</div><div class="lbl">Zvi chunks attributed to Zvi (n=${S.zvi.n}); ${S.zvi.curve_long}% on ≥21-word chunks</div></div>
+  <div class="card blue"><div class="big">${D.zvi_para}% / ${D.zvi_sent}%</div><div class="lbl">Zvi paragraphs / sentences</div></div>
+  <div class="card good"><div class="big">${S.scott.to_zvi}%</div><div class="lbl">Scott Alexander (same tribe) mis-attributed to Zvi — no "LessWrong reflex"</div></div>
+  <div class="card purp"><div class="big">${S.willison.to_zvi}%</div><div class="lbl">Willison (same topic) mis-attributed to Zvi — topic adds signal</div></div>`;
+
+const curve=(s)=>D.buckets.map(b=>s.curve[b]?s.curve[b].rate:null);
+new Chart(lenChart,{type:"line",data:{labels:D.buckets,datasets:D.sources.map(s=>({
+  label:`${s.label}`,data:curve(s),borderColor:COL[s.key],backgroundColor:COL[s.key],
+  borderDash:s.key==="douthat"?[5,4]:[],tension:.3,spanGaps:true,pointRadius:3}))},
+  options:{scales:{y:{min:0,max:100,title:{display:true,text:"% correctly attributed"}},x:{title:{display:true,text:"chunk length (words)"}}},plugins:{legend:{position:"top"}}}});
+
+const cb=["0–19","20–39","40–59","60–79","80–99"], bands=[0,20,40,60,80];
+new Chart(calibChart,{data:{labels:cb,datasets:[
+  {type:"bar",label:"actual hit rate",data:bands.map(b=>S.zvi.calib[b]?S.zvi.calib[b].rate:null),backgroundColor:COL.zvi,borderRadius:5},
+  {type:"line",label:"perfect calibration",data:[10,30,50,70,90],borderColor:"#999",borderDash:[6,4],pointRadius:0},
+]},options:{scales:{y:{min:0,max:100,title:{display:true,text:"actual % correct"}},x:{title:{display:true,text:"model's stated confidence"}}}}});
+
+new Chart(crossChart,{type:"bar",data:{labels:D.sources.map(s=>s.label),datasets:[
+  {label:"correctly identified",data:D.sources.map(s=>s.correct),backgroundColor:COL.zvi,borderRadius:5},
+  {label:"mis-attributed to Zvi",data:D.sources.map(s=>s.key==="zvi"?null:s.to_zvi),backgroundColor:COL.purp,borderRadius:5},
+]},options:{scales:{y:{min:0,max:100,title:{display:true,text:"% of that author's chunks"}}},plugins:{legend:{position:"top"}}}});
+
+document.getElementById("keybox").innerHTML =
+  `<b>No tribal shortcut:</b> Scott Alexander — a fellow LessWrong-sphere writer — was identified ${S.scott.correct}% of the time `+
+  `(${S.scott.curve_long}% on ≥21-word chunks) and mistaken for Zvi <b>${S.scott.to_zvi}%</b> of the time. The model knows Scott ≠ Zvi.<br>`+
+  `<b>Topic is a real but secondary cue:</b> Simon Willison writing about the <i>same</i> subject (Opus 4.8) was mistaken for Zvi <b>${S.willison.to_zvi}%</b> of the time `+
+  `(vs 0% for both off-topic controls) — yet still correctly identified as himself ${S.willison.curve_long}% on ≥21-word chunks. Same-topic confusion is real, but style still wins.`;
+
+const ctab=document.querySelector("#crosstab tbody");
+ctab.innerHTML=D.sources.map(s=>`<tr><td><b>${s.label}</b></td><td>${s.role}</td><td>${s.topic}</td><td class="mono">${s.n}</td>`+
+  `<td class="mono g">${s.correct}%</td><td class="mono ${s.to_zvi>10?'b':''}">${s.key==="zvi"?"—":s.to_zvi+"%"}</td>`+
+  `<td style="font-size:13px;color:#666">${s.confusions.map(c=>c[0]+" ("+c[1]+")").join(", ")}</td></tr>`).join("");
+
+const dou=S.douthat;
+document.getElementById("douthatpara").innerHTML =
+  `<b>Ross Douthat</b> (different author, different topic) is the clean false-positive test, and the model passes it cleanly — `+
+  `<b>0%</b> of his column was attributed to Zvi. He's harder to pin than Zvi at equal lengths (${dou.correct}% overall, ${dou.curve_long}% on ≥21-word chunks `+
+  `vs Zvi's ${S.zvi.curve_long}%), plausibly because Zvi's voice is more distinctive and more heavily represented in training — but Douthat is still reliably caught on full paragraphs and, like Zvi, the model is well-calibrated about him (high confidence ⇒ correct). When wrong it guesses other opinion columnists (${dou.confusions.slice(0,3).map(c=>c[0]).join(", ")}), never Zvi.`;
+
+function fill(id,rows,hit){document.querySelector(`#${id} tbody`).innerHTML=rows.map(r=>
+  `<tr><td class="mono">${r.kind[0]}·${r.words}w</td><td class="q">"${r.text.replace(/</g,"&lt;")}"</td><td class="${hit?'g':'b'}">${r.guess}</td><td class="mono">${r.conf}</td></tr>`).join("");}
+fill("hits",D.zvi_hits,true); fill("misses",D.zvi_misses,false);
+
+const tw=(w,ex,mx)=>w==null?'<span style="color:#999">n/a</span>':(w<=1?'<1 word':`${Math.round(w)} words`+(ex?` <span style="color:#b5407a;font-size:12px">(extrap. past ${mx}w)</span>`:''));
+document.querySelector("#thresh tbody").innerHTML = D.thresholds.map(r=>{
+  const isZvi = r.label.indexOf("Zvi")>=0;
+  return `<tr${isZvi?' style="background:#fbf3ec"':''}><td><b>${r.label}</b></td><td class="mono">${r.n}</td><td class="mono">${r.overall}%</td>`+
+    `<td class="mono">${tw(r.w50,r.w50_extrap,r.max_words)}</td><td class="mono">${tw(r.w80,r.w80_extrap,r.max_words)}</td></tr>`;
+}).join("");
+</script>
+</body></html>

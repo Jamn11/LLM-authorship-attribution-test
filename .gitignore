@@ -1,0 +1,31 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# macOS Finder metadata
+.DS_Store
+
+# Secrets -- never commit the API keys
+.env
+*.key
+
+# Local working data: raw HTML, full-text chunks, raw per-call results.
+# All of it is regenerable with src/ (scrape.py + run_attribution.py) and most
+# of it embeds copyrighted article text -- keep it local, publish the curated
+# artifacts under publish/ instead. (Anchored with a leading slash so it matches
+# only the top-level data/, NOT publish/data/ which holds the shareable outputs.)
+/data/
+
+# The full per-call dataset embeds verbatim article text (copyright). The public
+# release ships the text-stripped version (publish/data/attributions_public.csv).
+publish/data/attributions.csv
+
+# Local audit tool (embeds verbatim chunk text)
+publish/reasoning_audit.html
