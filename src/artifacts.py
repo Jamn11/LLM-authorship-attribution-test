@@ -299,7 +299,7 @@ def main():
     tables = [("table_models_zvi.png", table_model()),
               ("table_opus48_by_author.png", table_author()),
               ("table_cross_attribution.png", table_cross_attr())]
-    md = ["# zvi-sight — comparison tables\n",
+    md = ["# LLM authorship-attribution test — comparison tables\n",
           "_Threshold estimates from logistic fits; brackets are 90% bootstrap CIs (200 resamples)._\n"]
     for pngname, (title, header, rows) in tables:
         md.append(f"### {title}\n\n" + md_table(header, rows) + "\n")

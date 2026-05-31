@@ -1,5 +1,5 @@
 [project]
-name = "zvi-sight"
+name = "llm-authorship-attribution-test"
 version = "0.1.0"
 description = "How few words does a frontier LLM need to identify an author? Open-ended authorship attribution experiments."
 readme = "README.md"

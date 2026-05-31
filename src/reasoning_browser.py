@@ -57,7 +57,7 @@ def main():
 
 TEMPLATE = r"""<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>zvi-sight — reasoning audit</title>
+<title>LLM authorship-attribution test — reasoning audit</title>
 <style>
  :root{--ink:#1a1a1a;--mut:#6b6b6b;--line:#e4e0d8;--bg:#faf8f3;--card:#fff;--good:#3a8a55;--bad:#b3344a;}
  *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;}
@@ -79,7 +79,7 @@ TEMPLATE = r"""<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
  mark{background:#ffe6a8;}
 </style></head><body>
 <header>
- <h1>zvi-sight — chunk → guess → reasoning audit</h1>
+ <h1>LLM authorship-attribution test — chunk → guess → reasoning audit</h1>
  <div class="ctl">
   <span><label>model</label><select id="fm"></select></span>
   <span><label>true author</label><select id="fa"></select></span>

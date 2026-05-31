@@ -138,7 +138,7 @@ def main():
 
 HTML_TEMPLATE = r"""<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>zvi-sight — Authorship Attribution by Opus 4.8</title>
+<title>LLM authorship-attribution test — Authorship Attribution by Opus 4.8</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
   :root{--ink:#1a1a1a;--mut:#6b6b6b;--line:#e4e0d8;--bg:#faf8f3;--card:#fff;--accent:#c2622d;--blue:#2d6ec2;--good:#3a8a55;--purp:#7a4fb5;}
@@ -209,7 +209,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
 • <b>Refusals:</b> a few Zvi chunks about biological/chemical threat models triggered content-safety refusals and are excluded.<br>
 • <b>Single pass:</b> one call per chunk, so the per-bucket curve carries sampling noise at small n (Willison n=38). Replicates would tighten it.</p>
 
-<footer>zvi-sight · model <code>claude-opus-4-8</code> · open-ended attribution · generated from results*.jsonl</footer>
+<footer>LLM authorship-attribution test · model <code>claude-opus-4-8</code> · open-ended attribution · generated from results*.jsonl</footer>
 </div>
 
 <script>

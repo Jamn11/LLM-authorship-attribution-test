@@ -1,4 +1,4 @@
-# zvi-sight — comparison tables
+# LLM authorship-attribution test — comparison tables
 
 _Threshold estimates from logistic fits; brackets are 90% bootstrap CIs (200 resamples)._
 

@@ -1,4 +1,4 @@
-# zvi-sight: how few words does a frontier model need to identify an author?
+# LLM authorship-attribution test: how few words does a frontier model need to identify an author?
 
 A small empirical study of **authorship attribution by large language models**. We
 ask a model, with no tools and no web access, *"who wrote this?"* for every

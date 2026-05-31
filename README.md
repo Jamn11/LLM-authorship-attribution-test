@@ -1,4 +1,4 @@
-# zvi-sight
+# LLM authorship-attribution test
 
 **How few words does a frontier LLM need to identify an author?**
 
